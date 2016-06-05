@@ -18,12 +18,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(AppDelegate.showLogin), name: Twitter.NOTIFY_LOGOUT, object: nil)
+        
         if(Twitter.isLoggedOut()) {
-            let viewController = storyboard.instantiateViewControllerWithIdentifier("LoginViewController") as UIViewController
-            window?.rootViewController = viewController
+            showLogin()
         }
 
         return true
+    }
+    
+    func showLogin() {
+        let viewController = storyboard.instantiateViewControllerWithIdentifier("LoginViewController") as UIViewController
+        window?.rootViewController = viewController
     }
 
     func applicationWillResignActive(application: UIApplication) {

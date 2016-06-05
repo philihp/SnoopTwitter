@@ -9,9 +9,16 @@
 import UIKit
 import BDBOAuth1Manager
 
+enum TimelineType {
+    case Home
+    case Mentions
+}
+
 class Twitter: BDBOAuth1SessionManager {
     
     static let USER_KEY = "USER_KEY"
+    static let NOTIFY_LOGOUT = "TWITTER_NOTIFY_LOGOUT"
+    
     static let defaults = NSUserDefaults.standardUserDefaults()
     
     static let client = Twitter(
@@ -27,6 +34,9 @@ class Twitter: BDBOAuth1SessionManager {
         print("ERROR: \(error.description)")
     }
     
+    static let DEFAULT_SUCCESS_HANDLER = { () in
+    }
+    
     static var _currentUser: User?
     class var user: User? {
         get {
@@ -34,7 +44,7 @@ class Twitter: BDBOAuth1SessionManager {
                 let serializedUser = defaults.objectForKey(USER_KEY) as? NSData
                 if let serializedUser = serializedUser {
                     let dictionary = try! NSJSONSerialization.JSONObjectWithData(serializedUser, options: []) as! NSDictionary
-                    _currentUser = User(dictionary: dictionary)
+                    _currentUser = User(dictionary)
                 }
             }
             return _currentUser
@@ -42,7 +52,7 @@ class Twitter: BDBOAuth1SessionManager {
         set(user) {
             _currentUser = user
             if let user = user {
-                let serializedUser = try! NSJSONSerialization.dataWithJSONObject(user.dictionary!, options: [])
+                let serializedUser = try! NSJSONSerialization.dataWithJSONObject(user.dictionary, options: [])
                 defaults.setObject(serializedUser, forKey: USER_KEY)
             } else {
                 defaults.setObject(nil, forKey: USER_KEY)
@@ -77,6 +87,14 @@ class Twitter: BDBOAuth1SessionManager {
         )
     }
     
+    func logout(failure: (NSError) -> () = DEFAULT_FAILURE_HANDLER, success: () -> () = DEFAULT_SUCCESS_HANDLER) {
+        requestSerializer.removeAccessToken()
+        deauthorize()
+        Twitter.user = nil
+        
+        NSNotificationCenter.defaultCenter().postNotificationName(Twitter.NOTIFY_LOGOUT, object: nil)
+    }
+    
     func handleOpenUrl(url: NSURL) {
         let requestToken = BDBOAuth1Credential(queryString: url.query)
         fetchAccessTokenWithPath(
@@ -94,8 +112,15 @@ class Twitter: BDBOAuth1SessionManager {
             failure: Twitter.DEFAULT_FAILURE_HANDLER)
     }
     
-    func homeTimeline(failure: (NSError) -> () = DEFAULT_FAILURE_HANDLER, success: ([Tweet]) -> ()) {
-        GET("1.1/statuses/home_timeline.json",
+    func timeline(type: TimelineType, failure: (NSError) -> () = DEFAULT_FAILURE_HANDLER, success: ([Tweet]) -> ()) {
+        var endpoint: String = ""
+        switch(type) {
+        case .Home:
+            endpoint = "1.1/statuses/home_timeline.json"
+        case .Mentions:
+            endpoint = "1.1/statuses/mentions_timeline.json"
+        }
+        GET(endpoint,
             parameters: nil,
             progress: nil,
             success: { (_: NSURLSessionDataTask, response: AnyObject?) in
@@ -114,8 +139,29 @@ class Twitter: BDBOAuth1SessionManager {
             progress: nil,
             success: { (_: NSURLSessionDataTask, response: AnyObject?) in
                 let userDictionary = response as! NSDictionary
-                let user = User(dictionary: userDictionary)
+                let user = User(userDictionary)
                 success(user)
+            },
+            failure: { (_: NSURLSessionDataTask?, error: NSError) in
+                failure(error)
+            }
+        )
+    }
+    
+    func composeTweet(status: String, failure: (NSError) -> () = DEFAULT_FAILURE_HANDLER, success: (Tweet) -> ()) {
+        let params: NSDictionary = [
+            "status": status
+        ]
+        POST("1.1/statuses/update.json",
+            parameters: params,
+            progress: nil,
+            success: { (_: NSURLSessionDataTask, response: AnyObject?) in
+                if let response = response as? NSDictionary {
+                    let tweet = Tweet(response)
+                    success(tweet)
+                } else {
+                    failure(NSError(domain: "Response was not an NSDictionary", code: 555, userInfo: nil))
+                }
             },
             failure: { (_: NSURLSessionDataTask?, error: NSError) in
                 failure(error)
