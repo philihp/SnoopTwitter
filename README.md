@@ -58,7 +58,7 @@ Took me a while to really figure out how to do the Hamburger menu. I tried for a
 
 Sometimes it doesn't load the pictures. I don't know why, but sometimes it does. I assume this is rate limiting... the error in the console is like "Nope". This is shown in the GIF part.
 
-I didn't get to finishing it, lots of it really needed polish, but I think the only part that I didn't get to doing that I really wanted to do was the XIB part.
+I didn't get to finishing it, lots of it really needed polish, but a lot of the remaining work (except for the XIB part, things like showing # of retweets) seemed like mechanical stuff that I already knew how to do.
 
 ## License
 
