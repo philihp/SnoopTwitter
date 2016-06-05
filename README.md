@@ -2,7 +2,7 @@
 
 SnoopTwitter is a basic twitter app to read and compose tweets the [Twitter API](https://apps.twitter.com).
 
-Time spent: 20 hours spent in total
+Time spent: 40 hours spent in total
 
 ## User Stories
 
@@ -58,7 +58,7 @@ Describe any challenges encountered while building the app.
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright 2016 Philihp Busby
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
