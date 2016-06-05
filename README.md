@@ -48,13 +48,17 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://raw.githubusercontent.com/philihp/SnoopTwitter/master/SnoopTwitter.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
-Describe any challenges encountered while building the app.
+Took me a while to really figure out how to do the Hamburger menu. I tried for a while to use SplitViewController, and changing the width of the left part, but it didn't seem to be responding to my gestures
+
+Sometimes it doesn't load the pictures. I don't know why, but sometimes it does. I assume this is rate limiting... the error in the console is like "Nope". This is shown in the GIF part.
+
+I didn't get to finishing it, lots of it really needed polish, but I think the only part that I didn't get to doing that I really wanted to do was the XIB part.
 
 ## License
 
